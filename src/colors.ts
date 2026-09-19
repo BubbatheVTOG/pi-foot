@@ -64,16 +64,18 @@ const SECTION_NAMES = [
   "branch",
   "status",
   "registry",
+  "separator",
 ];
 
 export const DEFAULT_SECTION_COLORS: Readonly<Record<string, ColorSpec>> = {
-  model: "accent",
+  model: "muted",
   thinking: "muted",
   tokens: "muted",
   cache: "muted",
   cost: "muted",
   branch: "muted",
   status: "muted",
+  separator: "accent",
 };
 
 export function readColorOverrides(

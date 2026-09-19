@@ -57,7 +57,7 @@ export function renderFooter(
     colors.set(section, color);
   const context: FooterRenderContext = {
     width,
-    separator: theme.fg("accent", SEPARATOR),
+    separator: colorize(theme, SEPARATOR, colors.get("separator")),
     theme,
     statuses,
     branch,

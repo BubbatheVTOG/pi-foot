@@ -15,11 +15,13 @@ test("reads one JSON override and convenient per-section variables", () => {
   const colors = readColorOverrides({
     PI_FOOT_COLORS: JSON.stringify({ model: "#ffffff", tokens: 39 }),
     PI_FOOT_COLOR_CACHE: "accent",
+    PI_FOOT_COLOR_SEPARATOR: "#89b4fa",
   });
 
   assert.equal(colors.get("model"), "#ffffff");
   assert.equal(colors.get("tokens"), 39);
   assert.equal(colors.get("cache"), "accent");
+  assert.equal(colors.get("separator"), "#89b4fa");
 });
 
 test("renders custom colors as terminal sequences", () => {

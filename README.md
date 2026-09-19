@@ -32,7 +32,7 @@ Installation and activation are separate. Reload Pi after installing or changing
 
 ## Section colors
 
-Built-in sections use Pi's active theme by default. No additional Pi settings entry is required: color overrides can be supplied through the environment.
+Built-in sections use Pi's active theme by default. The model and telemetry text are muted; separators use the theme's accent color. No additional Pi settings entry is required: color overrides can be supplied through the environment.
 
 Use one JSON variable for several sections:
 
@@ -45,11 +45,12 @@ Or use a single-section shortcut:
 ```bash
 export PI_FOOT_COLOR_MODEL="#f5c2e7"
 export PI_FOOT_COLOR_CACHE="ansi:141"
+export PI_FOOT_COLOR_SEPARATOR="#89b4fa"
 ```
 
 Supported color values are Pi theme names such as `accent`, `muted`, or `thinkingMedium`; six-digit hex values such as `#7aa2f7`; xterm 256-color indexes such as `39` or `ansi:141`; and RGB values such as `rgb(122, 162, 247)`. Theme values continue to follow the user's active Pi theme.
 
-The section ids are `model`, `thinking`, `tokens`, `cache`, `cost`, `branch`, `status`, and `registry`.
+The section ids are `model`, `thinking`, `tokens`, `cache`, `cost`, `branch`, `status`, `registry`, and `separator`.
 
 Registered sections can set their own color directly:
 
