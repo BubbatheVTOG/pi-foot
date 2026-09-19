@@ -158,7 +158,11 @@ function createCandidates(
     appendNativeStatuses(context, candidates, "lsp", order);
   }
   return candidates
-    .filter((candidate) => config.sections.get(candidate.section)?.enabled !== false)
+    .filter(
+      (candidate) =>
+        config.order.includes(candidate.section) &&
+        config.sections.get(candidate.section)?.enabled !== false,
+    )
     .map((candidate) => ({
       ...candidate,
       priority: config.sections.get(candidate.section)?.priority ?? candidate.priority,

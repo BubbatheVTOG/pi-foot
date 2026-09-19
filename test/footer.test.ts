@@ -89,6 +89,28 @@ test("omits optional statuses from built-in defaults", () => {
   assert.equal(line.includes("LSP Inactive"), false);
 });
 
+test("treats an explicit order as the visible section allowlist", () => {
+  const line = renderFooter(
+    240,
+    { fg: (_color, text) => text },
+    {
+      getExtensionStatuses: () => new Map(),
+      getGitBranch: () => "main",
+      getAvailableProviderCount: () => 1,
+      onBranchChange: () => () => {},
+    },
+    { modelId: "test-model", thinkingLevel: "medium", entries: [] },
+    getPiFootRegistry(),
+    resolvePiFootConfig({ order: ["model", "cost"] }),
+  )[0];
+
+  assert.match(line, /MODEL test-model/);
+  assert.match(line, /COST/);
+  assert.equal(line.includes("REASON"), false);
+  assert.equal(line.includes("IN 0 OUT 0"), false);
+  assert.equal(line.includes("CACHE"), false);
+});
+
 test("keeps the model visible when the terminal is narrow", () => {
   const line = renderFooter(
     24,
