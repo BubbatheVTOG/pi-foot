@@ -121,7 +121,7 @@ function createCandidates(
   ];
 
   let order = 100;
-  for (const kind of ["cloud", "voice", "cache-status"] as const) {
+  for (const kind of ["cloud", "voice"] as const) {
     order = appendNativeStatuses(context, candidates, kind, order);
   }
 
@@ -150,7 +150,7 @@ function createCandidates(
   return candidates;
 }
 
-type NativeStatusKind = "cloud" | "voice" | "cache-status" | "lsp";
+type NativeStatusKind = "cloud" | "voice" | "lsp";
 
 function appendNativeStatuses(
   context: FooterRenderContext,
@@ -180,7 +180,6 @@ function nativeStatusKind(key: string, value: string): NativeStatusKind | undefi
   if (source.includes("lsp")) return "lsp";
   if (source.includes("cloud")) return "cloud";
   if (source.includes("voice")) return "voice";
-  if (source.includes("cache")) return "cache-status";
   return undefined;
 }
 

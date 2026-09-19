@@ -50,7 +50,7 @@ export PI_FOOT_COLOR_SEPARATOR="#89b4fa"
 
 Supported color values are Pi theme names such as `accent`, `muted`, or `thinkingMedium`; six-digit hex values such as `#7aa2f7`; xterm 256-color indexes such as `39` or `ansi:141`; and RGB values such as `rgb(122, 162, 247)`. Theme values continue to follow the user's active Pi theme.
 
-The section ids are `model`, `reasoning`, `tokens`, `cache`, `cache-status`, `cost`, `cloud`, `voice`, `lsp`, `registry`, and `separator`.
+The section ids are `model`, `reasoning`, `tokens`, `cache`, `cost`, `cloud`, `voice`, `lsp`, `registry`, and `separator`.
 
 Registered sections can set their own color directly:
 

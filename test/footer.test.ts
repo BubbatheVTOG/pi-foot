@@ -20,7 +20,6 @@ test("renders native statuses and registered sections", () => {
         new Map([
           ["cloud", "CLOUD"],
           ["voice", "VOICE OFF"],
-          ["pi-cache-stats", "CACHE HIT 75%"],
           ["lsp", "LSP Inactive"],
         ]),
       getGitBranch: () => "main",
@@ -54,11 +53,10 @@ test("renders native statuses and registered sections", () => {
   assert.match(line, /IN 1\.2k OUT 300/);
   assert.match(line, /CLOUD/);
   assert.match(line, /VOICE OFF/);
-  assert.match(line, /CACHE HIT 75%/);
   assert.match(line, /LSP Inactive/);
   assert.match(line, /EXTRA yes/);
   assert.equal(line.includes("BRANCH"), false);
-  assert.equal(line.indexOf("LSP Inactive") > line.indexOf("CACHE HIT 75%"), true);
+  assert.equal(line.indexOf("LSP Inactive") > line.indexOf("CACHE R800 W100"), true);
   assert.equal(line.indexOf("CLOUD") < line.indexOf("VOICE OFF"), true);
   remove();
 });
