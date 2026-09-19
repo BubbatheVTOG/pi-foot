@@ -1,4 +1,8 @@
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import {
+  CONFIG_DIR_NAME,
+  type ExtensionAPI,
+} from "@earendil-works/pi-coding-agent";
+import { loadPiFootConfig, type ResolvedPiFootConfig } from "../src/config.ts";
 import { getPiFootRegistry } from "../src/registry.ts";
 import { renderFooter } from "../src/footer.ts";
 
@@ -6,8 +10,10 @@ export default function (pi: ExtensionAPI): void {
   let modelId: string | undefined;
   let thinkingLevel: string | undefined;
   let requestRender = (): void => {};
+  let footerConfig: ResolvedPiFootConfig = loadPiFootConfig(process.cwd());
 
   pi.on("session_start", (_event, ctx) => {
+    footerConfig = loadPiFootConfig(ctx.cwd, CONFIG_DIR_NAME);
     modelId = ctx.model?.id;
     thinkingLevel = ctx.thinkingLevel;
 
@@ -21,11 +27,18 @@ export default function (pi: ExtensionAPI): void {
       return {
         invalidate() {},
         render(width: number): string[] {
-          return renderFooter(width, theme, footerData, {
-            modelId,
-            thinkingLevel,
-            entries: ctx.sessionManager.getBranch(),
-          });
+          return renderFooter(
+            width,
+            theme,
+            footerData,
+            {
+              modelId,
+              thinkingLevel,
+              entries: ctx.sessionManager.getBranch(),
+            },
+            getPiFootRegistry(),
+            footerConfig,
+          );
         },
         dispose() {
           unsubscribeBranch();

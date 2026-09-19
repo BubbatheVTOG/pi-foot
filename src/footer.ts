@@ -1,10 +1,6 @@
 import type { ReadonlyFooterDataProvider } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
-import {
-  colorize,
-  DEFAULT_SECTION_COLORS,
-  readColorOverrides,
-} from "./colors.ts";
+import { colorize } from "./colors.ts";
 import {
   fitText,
   formatCost,
@@ -12,6 +8,10 @@ import {
   oneLine,
   stripAnsi,
 } from "./format.ts";
+import {
+  defaultPiFootConfig,
+  type ResolvedPiFootConfig,
+} from "./config.ts";
 import {
   getPiFootRegistry,
   type FooterRenderContext,
@@ -28,13 +28,12 @@ interface FooterRuntime {
 }
 
 interface Candidate {
+  section: string;
   text: string;
   priority: number;
   order: number;
   required?: boolean;
 }
-
-const SEPARATOR = " │ ";
 
 export function renderFooter(
   width: number,
@@ -42,22 +41,18 @@ export function renderFooter(
   footerData: ReadonlyFooterDataProvider,
   runtime: FooterRuntime,
   registry: PiFootRegistry = getPiFootRegistry(),
+  config: ResolvedPiFootConfig = defaultPiFootConfig(),
 ): string[] {
   if (width <= 0) return [""];
 
   const telemetry = collectTelemetry(runtime.entries);
   const statuses = footerData.getExtensionStatuses();
   const branch = footerData.getGitBranch();
-  const colors = new Map<string, string | number>(
-    Object.entries(DEFAULT_SECTION_COLORS),
-  );
-  for (const [section, color] of readColorOverrides())
-    colors.set(section, color);
-  for (const [section, color] of registry.getColors())
-    colors.set(section, color);
+  const colors = new Map(config.colors);
+  for (const [section, color] of registry.getColors()) colors.set(section, color);
   const context: FooterRenderContext = {
     width,
-    separator: colorize(theme, SEPARATOR, colors.get("separator")),
+    separator: colorize(theme, config.separator, colors.get("separator")),
     theme,
     statuses,
     branch,
@@ -65,8 +60,8 @@ export function renderFooter(
     colors,
   };
 
-  const candidates = createCandidates(context, runtime, registry);
-  const selected = selectCandidates(candidates, width);
+  const candidates = createCandidates(context, runtime, registry, config);
+  const selected = selectCandidates(candidates, width, context.separator);
   const line = selected
     .map((candidate) => candidate.text)
     .join(context.separator);
@@ -78,10 +73,12 @@ function createCandidates(
   context: FooterRenderContext,
   runtime: FooterRuntime,
   registry: PiFootRegistry,
+  config: ResolvedPiFootConfig,
 ): Candidate[] {
   const telemetry = context.telemetry;
   const candidates: Candidate[] = [
     {
+      section: "model",
       text: colorize(
         context.theme,
         `MODEL ${oneLine(runtime.modelId ?? "no-model")}`,
@@ -92,6 +89,7 @@ function createCandidates(
       required: true,
     },
     {
+      section: "reasoning",
       text: colorize(
         context.theme,
         `REASON ${oneLine(runtime.thinkingLevel ?? "off")}`,
@@ -101,6 +99,7 @@ function createCandidates(
       order: 1,
     },
     {
+      section: "cost",
       text: colorize(
         context.theme,
         `COST ${formatCost(telemetry.cost)}`,
@@ -110,6 +109,7 @@ function createCandidates(
       order: 2,
     },
     {
+      section: "tokens",
       text: colorize(
         context.theme,
         `IN ${formatTokens(telemetry.input)} OUT ${formatTokens(telemetry.output)}`,
@@ -126,6 +126,7 @@ function createCandidates(
   }
 
   candidates.push({
+    section: "cache",
     text: colorize(
       context.theme,
       `CACHE R${formatTokens(telemetry.cacheRead)} W${formatTokens(telemetry.cacheWrite)}`,
@@ -140,6 +141,7 @@ function createCandidates(
     const text = renderRegisteredSection(section, registryContext);
     if (!text) continue;
     candidates.push({
+      section: "registry",
       text: oneLine(text),
       priority: section.priority ?? 35,
       order: order++,
@@ -147,7 +149,19 @@ function createCandidates(
   }
 
   appendNativeStatuses(context, candidates, "lsp", order);
-  return candidates;
+  return candidates
+    .filter((candidate) => config.sections.get(candidate.section)?.enabled !== false)
+    .map((candidate) => ({
+      ...candidate,
+      priority: config.sections.get(candidate.section)?.priority ?? candidate.priority,
+    }))
+    .sort((a, b) => {
+      const aRank = config.order.indexOf(a.section);
+      const bRank = config.order.indexOf(b.section);
+      return (aRank === -1 ? config.order.length : aRank)
+        - (bRank === -1 ? config.order.length : bRank)
+        || a.order - b.order;
+    });
 }
 
 type NativeStatusKind = "cloud" | "voice" | "lsp";
@@ -161,6 +175,7 @@ function appendNativeStatuses(
   for (const [key, value] of context.statuses) {
     if (!value.trim() || nativeStatusKind(key, value) !== kind) continue;
     candidates.push({
+      section: kind,
       // Native statuses may already contain ANSI colors. pi-foot owns the
       // final footer palette, so normalize them to the configured section color.
       text: colorize(
@@ -207,9 +222,13 @@ function sectionColor(
   return context.colors.get(section);
 }
 
-function selectCandidates(candidates: Candidate[], width: number): Candidate[] {
+function selectCandidates(
+  candidates: Candidate[],
+  width: number,
+  separator: string,
+): Candidate[] {
   const selected = [...candidates];
-  while (selected.length > 1 && renderedWidth(selected) > width) {
+  while (selected.length > 1 && renderedWidth(selected, separator) > width) {
     const removable = selected
       .filter((candidate) => !candidate.required)
       .sort((a, b) => a.priority - b.priority || b.order - a.order)[0];
@@ -217,17 +236,17 @@ function selectCandidates(candidates: Candidate[], width: number): Candidate[] {
     selected.splice(selected.indexOf(removable), 1);
   }
 
-  if (renderedWidth(selected) <= width) return selected;
+  if (renderedWidth(selected, separator) <= width) return selected;
   const first = selected[0];
   return first ? [{ ...first, text: fitText(first.text, width) }] : [];
 }
 
-function renderedWidth(candidates: Candidate[]): number {
+function renderedWidth(candidates: Candidate[], separator: string): number {
   return (
     candidates.reduce(
       (total, candidate) => total + visibleWidth(candidate.text),
       0,
     ) +
-    Math.max(0, candidates.length - 1) * visibleWidth(SEPARATOR)
+    Math.max(0, candidates.length - 1) * visibleWidth(separator)
   );
 }

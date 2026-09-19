@@ -1,4 +1,13 @@
 export {
+  defaultPiFootConfig,
+  loadPiFootConfig,
+  resolvePiFootConfig,
+  DEFAULT_ORDER,
+  type PiFootSettings,
+  type ResolvedPiFootConfig,
+  type SectionConfig,
+} from "./config.ts";
+export {
   colorize,
   DEFAULT_SECTION_COLORS,
   parseColorSpec,

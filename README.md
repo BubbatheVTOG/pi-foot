@@ -30,9 +30,53 @@ pi -e git:git@github.com:BubbatheVTOG/pi-foot
 
 Installation and activation are separate. Reload Pi after installing or changing the package.
 
+## Pi configuration
+
+`pi-foot` reads the `piFoot` object from Pi's normal settings file. Global settings live at `~/.pi/agent/settings.json`; project settings live at `.pi/settings.json` and override the global values. Missing optional sections are simply omitted, so the defaults work whether cloud, voice, cache-monitor, or LSP extensions are installed.
+
+The repository's default configuration is:
+
+```json
+{
+  "piFoot": {
+    "order": ["model", "reasoning", "cost", "tokens", "cloud", "voice", "cache", "registry", "lsp"],
+    "separator": " │ ",
+    "colors": {
+      "model": "muted",
+      "reasoning": "muted",
+      "cost": "muted",
+      "tokens": "muted",
+      "cloud": "muted",
+      "voice": "muted",
+      "cache": "muted",
+      "registry": "muted",
+      "lsp": "muted",
+      "separator": "accent"
+    }
+  }
+}
+```
+
+Users can reorder entries, disable sections, and assign colors without changing the extension. For example:
+
+```json
+{
+  "piFoot": {
+    "order": ["model", "reasoning", "tokens", "cost", "cache", "lsp"],
+    "sections": {
+      "lsp": { "enabled": false }
+    },
+    "colors": {
+      "model": "#cba6f7",
+      "separator": "thinkingMedium"
+    }
+  }
+}
+```
+
 ## Section colors
 
-Built-in sections use Pi's active theme by default. The model and telemetry text are muted; separators use the theme's accent color. No additional Pi settings entry is required: color overrides can be supplied through the environment.
+Built-in sections use Pi's active theme by default. The model and telemetry text are muted; separators use the theme's accent color. Environment variables remain available as compatibility fallbacks, but settings JSON takes precedence.
 
 Use one JSON variable for several sections:
 
