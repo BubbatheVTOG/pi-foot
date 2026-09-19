@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  defaultPiFootConfig,
-  resolvePiFootConfig,
-} from "../src/config.ts";
+import { defaultPiFootConfig, resolvePiFootConfig } from "../src/config.ts";
 
 test("resolves user order and colors over defaults and environment", () => {
   const config = resolvePiFootConfig(

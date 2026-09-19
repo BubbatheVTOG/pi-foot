@@ -47,7 +47,9 @@ export function loadPiFootConfig(
 ): ResolvedPiFootConfig {
   const globalDir = env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
   const global = readPiFootSettings(join(globalDir, "settings.json"));
-  const project = readPiFootSettings(join(cwd, projectConfigDirName, "settings.json"));
+  const project = readPiFootSettings(
+    join(cwd, projectConfigDirName, "settings.json"),
+  );
   return resolvePiFootConfig(global, project, readColorOverrides(env));
 }
 
@@ -60,8 +62,10 @@ export function resolvePiFootConfig(
     Object.entries(DEFAULT_SECTION_COLORS),
   );
   for (const [section, color] of environment) colors.set(section, color);
-  for (const [section, color] of objectColors(global.colors)) colors.set(section, color);
-  for (const [section, color] of objectColors(project.colors)) colors.set(section, color);
+  for (const [section, color] of objectColors(global.colors))
+    colors.set(section, color);
+  for (const [section, color] of objectColors(project.colors))
+    colors.set(section, color);
 
   const sections = new Map<string, SectionConfig>();
   for (const [section, config] of Object.entries(global.sections ?? {})) {
@@ -96,7 +100,9 @@ function readPiFootSettings(path: string): PiFootSettings {
     const raw = parsed.piFoot;
     const settings: PiFootSettings = {};
     if (Array.isArray(raw.order)) {
-      settings.order = raw.order.filter((value): value is string => typeof value === "string");
+      settings.order = raw.order.filter(
+        (value): value is string => typeof value === "string",
+      );
     }
     if (typeof raw.separator === "string") settings.separator = raw.separator;
 
@@ -122,7 +128,9 @@ function readPiFootSettings(path: string): PiFootSettings {
   }
 }
 
-function objectColors(value: Record<string, ColorSpec> | undefined): Map<string, ColorSpec> {
+function objectColors(
+  value: Record<string, ColorSpec> | undefined,
+): Map<string, ColorSpec> {
   const colors = new Map<string, ColorSpec>();
   if (!value) return colors;
   for (const [section, color] of Object.entries(value)) {
@@ -148,6 +156,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isSectionConfig(value: unknown): value is SectionConfig {
   if (!isRecord(value)) return false;
-  return (value.enabled === undefined || typeof value.enabled === "boolean")
-    && (value.priority === undefined || typeof value.priority === "number");
+  return (
+    (value.enabled === undefined || typeof value.enabled === "boolean") &&
+    (value.priority === undefined || typeof value.priority === "number")
+  );
 }

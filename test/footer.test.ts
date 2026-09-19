@@ -13,7 +13,17 @@ test("renders native statuses and registered sections", () => {
     render: ({ theme }) => theme.fg("accent", "EXTRA yes"),
   });
   const config = resolvePiFootConfig({
-    order: ["model", "reasoning", "cost", "tokens", "cloud", "voice", "cache", "registry", "lsp"],
+    order: [
+      "model",
+      "reasoning",
+      "cost",
+      "tokens",
+      "cloud",
+      "voice",
+      "cache",
+      "registry",
+      "lsp",
+    ],
   });
 
   const line = renderFooter(
@@ -61,7 +71,10 @@ test("renders native statuses and registered sections", () => {
   assert.match(line, /LSP Inactive/);
   assert.match(line, /EXTRA yes/);
   assert.equal(line.includes("BRANCH"), false);
-  assert.equal(line.indexOf("LSP Inactive") > line.indexOf("CACHE R800 W100"), true);
+  assert.equal(
+    line.indexOf("LSP Inactive") > line.indexOf("CACHE R800 W100"),
+    true,
+  );
   assert.equal(line.indexOf("CLOUD") < line.indexOf("VOICE OFF"), true);
   remove();
 });

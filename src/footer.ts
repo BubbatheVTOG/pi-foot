@@ -8,10 +8,7 @@ import {
   oneLine,
   stripAnsi,
 } from "./format.ts";
-import {
-  defaultPiFootConfig,
-  type ResolvedPiFootConfig,
-} from "./config.ts";
+import { defaultPiFootConfig, type ResolvedPiFootConfig } from "./config.ts";
 import {
   getPiFootRegistry,
   type FooterRenderContext,
@@ -49,7 +46,8 @@ export function renderFooter(
   const statuses = footerData.getExtensionStatuses();
   const branch = footerData.getGitBranch();
   const colors = new Map(config.colors);
-  for (const [section, color] of registry.getColors()) colors.set(section, color);
+  for (const [section, color] of registry.getColors())
+    colors.set(section, color);
   const context: FooterRenderContext = {
     width,
     separator: colorize(theme, config.separator, colors.get("separator")),
@@ -165,14 +163,16 @@ function createCandidates(
     )
     .map((candidate) => ({
       ...candidate,
-      priority: config.sections.get(candidate.section)?.priority ?? candidate.priority,
+      priority:
+        config.sections.get(candidate.section)?.priority ?? candidate.priority,
     }))
     .sort((a, b) => {
       const aRank = config.order.indexOf(a.section);
       const bRank = config.order.indexOf(b.section);
-      return (aRank === -1 ? config.order.length : aRank)
-        - (bRank === -1 ? config.order.length : bRank)
-        || a.order - b.order;
+      return (
+        (aRank === -1 ? config.order.length : aRank) -
+          (bRank === -1 ? config.order.length : bRank) || a.order - b.order
+      );
     });
 }
 
@@ -206,7 +206,10 @@ function appendNativeStatuses(
   return order;
 }
 
-function nativeStatusKind(key: string, value: string): NativeStatusKind | undefined {
+function nativeStatusKind(
+  key: string,
+  value: string,
+): NativeStatusKind | undefined {
   const source = `${key} ${value}`.toLowerCase();
   if (source.includes("lsp")) return "lsp";
   if (source.includes("cloud")) return "cloud";
