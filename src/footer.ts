@@ -57,7 +57,7 @@ export function renderFooter(
     colors.set(section, color);
   const context: FooterRenderContext = {
     width,
-    separator: theme.fg("dim", SEPARATOR),
+    separator: theme.fg("accent", SEPARATOR),
     theme,
     statuses,
     branch,
@@ -69,7 +69,7 @@ export function renderFooter(
   const selected = selectCandidates(candidates, width);
   const line = selected
     .map((candidate) => candidate.text)
-    .join(theme.fg("dim", SEPARATOR));
+    .join(context.separator);
 
   return [truncateToWidth(line, width)];
 }
