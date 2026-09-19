@@ -66,6 +66,29 @@ test("renders native statuses and registered sections", () => {
   remove();
 });
 
+test("omits optional statuses from built-in defaults", () => {
+  const line = renderFooter(
+    240,
+    { fg: (_color, text) => text },
+    {
+      getExtensionStatuses: () =>
+        new Map([
+          ["cloud", "CLOUD"],
+          ["voice", "VOICE OFF"],
+          ["lsp", "LSP Inactive"],
+        ]),
+      getGitBranch: () => "main",
+      getAvailableProviderCount: () => 1,
+      onBranchChange: () => () => {},
+    },
+    { modelId: "test-model", thinkingLevel: "medium", entries: [] },
+  )[0];
+
+  assert.equal(line.includes("CLOUD"), false);
+  assert.equal(line.includes("VOICE OFF"), false);
+  assert.equal(line.includes("LSP Inactive"), false);
+});
+
 test("keeps the model visible when the terminal is narrow", () => {
   const line = renderFooter(
     24,

@@ -134,14 +134,12 @@ function objectColors(value: Record<string, ColorSpec> | undefined): Map<string,
 
 function normalizeOrder(order: string[] | undefined): string[] {
   const values = Array.isArray(order) ? order : [...DEFAULT_ORDER];
-  const unique = values.filter(
+  return values.filter(
     (value, index): value is string =>
-      typeof value === "string" && value.trim().length > 0 && values.indexOf(value) === index,
+      typeof value === "string" &&
+      value.trim().length > 0 &&
+      values.indexOf(value) === index,
   );
-  for (const section of DEFAULT_ORDER) {
-    if (!unique.includes(section)) unique.push(section);
-  }
-  return unique;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

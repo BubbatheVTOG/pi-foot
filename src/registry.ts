@@ -1,4 +1,4 @@
-import type { ColorSpec } from "./colors.ts";
+import { parseColorSpec, type ColorSpec } from "./colors.ts";
 
 export const PI_FOOT_REGISTRY = Symbol.for("pi-foot.v1");
 
@@ -88,8 +88,13 @@ function createRegistry(): PiFootRegistry {
     },
     refresh: notify,
     setColor(section, color) {
-      if (color === undefined) colors.delete(section);
-      else colors.set(section, color);
+      if (color === undefined) {
+        colors.delete(section);
+      } else {
+        const parsed = parseColorSpec(color);
+        if (parsed === undefined) return;
+        colors.set(section, parsed);
+      }
       notify();
     },
     getColors() {

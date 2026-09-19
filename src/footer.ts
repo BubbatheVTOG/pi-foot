@@ -121,7 +121,7 @@ function createCandidates(
   ];
 
   let order = 100;
-  for (const kind of ["cloud", "voice"] as const) {
+  for (const kind of ["cloud", "voice", "status"] as const) {
     if (config.order.includes(kind)) {
       order = appendNativeStatuses(context, candidates, kind, order);
     }
@@ -172,7 +172,7 @@ function createCandidates(
     });
 }
 
-type NativeStatusKind = "cloud" | "voice" | "lsp";
+type NativeStatusKind = "cloud" | "voice" | "status" | "lsp";
 
 function appendNativeStatuses(
   context: FooterRenderContext,
@@ -182,6 +182,10 @@ function appendNativeStatuses(
 ): number {
   for (const [key, value] of context.statuses) {
     if (!value.trim() || nativeStatusKind(key, value) !== kind) continue;
+    let priority = 50;
+    if (kind === "lsp") priority = 10;
+    else if (kind === "status") priority = 45;
+
     candidates.push({
       section: kind,
       // Native statuses may already contain ANSI colors. pi-foot owns the
@@ -191,7 +195,7 @@ function appendNativeStatuses(
         oneLine(stripAnsi(value)),
         sectionColor(context, kind),
       ),
-      priority: kind === "lsp" ? 10 : 50,
+      priority,
       order: order++,
     });
   }
@@ -203,7 +207,7 @@ function nativeStatusKind(key: string, value: string): NativeStatusKind | undefi
   if (source.includes("lsp")) return "lsp";
   if (source.includes("cloud")) return "cloud";
   if (source.includes("voice")) return "voice";
-  return undefined;
+  return "status";
 }
 
 function renderRegisteredSection(

@@ -156,16 +156,17 @@ export function colorize(
   color: ColorSpec | undefined,
 ): string {
   const plainText = stripAnsi(text);
-  if (color === undefined) return text;
-  if (typeof color === "number")
-    return `\u001b[38;5;${color}m${plainText}\u001b[39m`;
-  if (color.startsWith("#")) {
-    const red = Number.parseInt(color.slice(1, 3), 16);
-    const green = Number.parseInt(color.slice(3, 5), 16);
-    const blue = Number.parseInt(color.slice(5, 7), 16);
+  const parsed = parseColorSpec(color);
+  if (parsed === undefined) return text;
+  if (typeof parsed === "number")
+    return `\u001b[38;5;${parsed}m${plainText}\u001b[39m`;
+  if (parsed.startsWith("#")) {
+    const red = Number.parseInt(parsed.slice(1, 3), 16);
+    const green = Number.parseInt(parsed.slice(3, 5), 16);
+    const blue = Number.parseInt(parsed.slice(5, 7), 16);
     return `\u001b[38;2;${red};${green};${blue}m${plainText}\u001b[39m`;
   }
-  return theme.fg(color, plainText);
+  return theme.fg(parsed, plainText);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolvePiFootConfig } from "../src/config.ts";
+import {
+  defaultPiFootConfig,
+  resolvePiFootConfig,
+} from "../src/config.ts";
 
 test("resolves user order and colors over defaults and environment", () => {
   const config = resolvePiFootConfig(
@@ -20,9 +23,18 @@ test("resolves user order and colors over defaults and environment", () => {
     ]),
   );
 
-  assert.deepEqual(config.order.slice(0, 2), ["cost", "model"]);
+  assert.deepEqual(config.order, ["cost", "model"]);
   assert.equal(config.colors.get("model"), "muted");
   assert.equal(config.colors.get("separator"), "accent");
   assert.equal(config.sections.get("lsp")?.enabled, true);
-  assert.equal(config.order.includes("reasoning"), true);
+});
+
+test("defaults to Pi's built-in telemetry only", () => {
+  assert.deepEqual(defaultPiFootConfig().order, [
+    "model",
+    "reasoning",
+    "cost",
+    "tokens",
+    "cache",
+  ]);
 });
