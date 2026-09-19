@@ -16,9 +16,15 @@ test("registers, replaces, and unregisters sections", () => {
   assert.equal(registry.getSections()[0]?.render({} as never), "second");
 
   remove();
-  assert.equal(registry.getSections().some(section => section.id === "test-section"), true);
+  assert.equal(
+    registry.getSections().some((section) => section.id === "test-section"),
+    true,
+  );
   registry.unregister("test-section");
-  assert.equal(registry.getSections().some(section => section.id === "test-section"), false);
+  assert.equal(
+    registry.getSections().some((section) => section.id === "test-section"),
+    false,
+  );
   assert.equal(changes, 3);
 
   unsubscribe();

@@ -55,7 +55,16 @@ const THEME_COLORS = new Set([
   "bashMode",
 ]);
 
-const SECTION_NAMES = ["model", "thinking", "tokens", "cache", "cost", "branch", "status", "registry"];
+const SECTION_NAMES = [
+  "model",
+  "thinking",
+  "tokens",
+  "cache",
+  "cost",
+  "branch",
+  "status",
+  "registry",
+];
 
 export const DEFAULT_SECTION_COLORS: Readonly<Record<string, ColorSpec>> = {
   model: "accent",
@@ -67,7 +76,9 @@ export const DEFAULT_SECTION_COLORS: Readonly<Record<string, ColorSpec>> = {
   status: "muted",
 };
 
-export function readColorOverrides(env: Record<string, string | undefined> = process.env): Map<string, ColorSpec> {
+export function readColorOverrides(
+  env: Record<string, string | undefined> = process.env,
+): Map<string, ColorSpec> {
   const overrides = new Map<string, ColorSpec>();
   const json = env.PI_FOOT_COLORS?.trim();
 
@@ -107,27 +118,37 @@ export function parseColorSpec(value: unknown): ColorSpec | undefined {
   }
   if (/^#[0-9a-f]{6}$/i.test(color)) return color;
 
-  const ansi = /^(?:ansi|terminal):([0-9]{1,3})$/i.exec(color) ?? /^(?:[0-9]{1,3})$/.exec(color);
+  const ansi =
+    /^(?:ansi|terminal):([0-9]{1,3})$/i.exec(color) ??
+    /^(?:[0-9]{1,3})$/.exec(color);
   if (ansi) {
     const value = Number(ansi[1] ?? ansi[0]);
     return isXtermColor(value) ? value : undefined;
   }
 
-  const rgb = /^(?:(?:rgb:)|(?:rgb\())?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?$/i.exec(color);
+  const rgb =
+    /^(?:(?:rgb:)|(?:rgb\())?\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)?$/i.exec(
+      color,
+    );
   if (rgb) {
     const values = rgb.slice(1).map(Number);
-    if (values.every(value => value >= 0 && value <= 255)) {
-      return `#${values.map(value => value.toString(16).padStart(2, "0")).join("")}`;
+    if (values.every((value) => value >= 0 && value <= 255)) {
+      return `#${values.map((value) => value.toString(16).padStart(2, "0")).join("")}`;
     }
   }
 
   return undefined;
 }
 
-export function colorize(theme: FooterTheme, text: string, color: ColorSpec | undefined): string {
+export function colorize(
+  theme: FooterTheme,
+  text: string,
+  color: ColorSpec | undefined,
+): string {
   const plainText = stripAnsi(text);
   if (color === undefined) return text;
-  if (typeof color === "number") return `\u001b[38;5;${color}m${plainText}\u001b[39m`;
+  if (typeof color === "number")
+    return `\u001b[38;5;${color}m${plainText}\u001b[39m`;
   if (color.startsWith("#")) {
     const red = Number.parseInt(color.slice(1, 3), 16);
     const green = Number.parseInt(color.slice(3, 5), 16);

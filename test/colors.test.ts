@@ -23,8 +23,16 @@ test("reads one JSON override and convenient per-section variables", () => {
 });
 
 test("renders custom colors as terminal sequences", () => {
-  const theme = { fg: (color: string, text: string) => `<${color}>${text}</${color}>` };
-  assert.equal(colorize(theme, "MODEL", "#12abef"), "\u001b[38;2;18;171;239mMODEL\u001b[39m");
-  assert.equal(colorize(theme, "MODEL", 196), "\u001b[38;5;196mMODEL\u001b[39m");
+  const theme = {
+    fg: (color: string, text: string) => `<${color}>${text}</${color}>`,
+  };
+  assert.equal(
+    colorize(theme, "MODEL", "#12abef"),
+    "\u001b[38;2;18;171;239mMODEL\u001b[39m",
+  );
+  assert.equal(
+    colorize(theme, "MODEL", 196),
+    "\u001b[38;5;196mMODEL\u001b[39m",
+  );
   assert.equal(colorize(theme, "MODEL", "accent"), "<accent>MODEL</accent>");
 });

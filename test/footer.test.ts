@@ -16,10 +16,11 @@ test("renders native statuses and registered sections", () => {
     240,
     { fg: (_color, text) => text },
     {
-      getExtensionStatuses: () => new Map([
-        ["cloud", "CLOUD"],
-        ["voice", "VOICE OFF"],
-      ]),
+      getExtensionStatuses: () =>
+        new Map([
+          ["cloud", "CLOUD"],
+          ["voice", "VOICE OFF"],
+        ]),
       getGitBranch: () => "main",
       getAvailableProviderCount: () => 1,
       onBranchChange: () => () => {},

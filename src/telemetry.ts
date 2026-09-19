@@ -22,7 +22,9 @@ export interface TelemetrySnapshot {
   cost: number;
 }
 
-export function collectTelemetry(entries: readonly SessionEntryLike[]): TelemetrySnapshot {
+export function collectTelemetry(
+  entries: readonly SessionEntryLike[],
+): TelemetrySnapshot {
   const snapshot: TelemetrySnapshot = {
     input: 0,
     output: 0,
@@ -32,9 +34,10 @@ export function collectTelemetry(entries: readonly SessionEntryLike[]): Telemetr
   };
 
   for (const entry of entries) {
-    const usage = entry.type === "message" && entry.message?.role === "assistant"
-      ? entry.message.usage
-      : undefined;
+    const usage =
+      entry.type === "message" && entry.message?.role === "assistant"
+        ? entry.message.usage
+        : undefined;
     if (!usage) continue;
 
     snapshot.input += finiteOrZero(usage.input);

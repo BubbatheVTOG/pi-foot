@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { fitText, formatCost, formatTokens, oneLine, stripAnsi } from "../src/format.ts";
+import {
+  fitText,
+  formatCost,
+  formatTokens,
+  oneLine,
+  stripAnsi,
+} from "../src/format.ts";
 
 test("formats token counts with readable units", () => {
   assert.equal(formatTokens(0), "0");
@@ -20,7 +26,10 @@ test("strips terminal sequences for plain fallback text", () => {
 });
 
 test("normalizes multiline values for the one-line footer", () => {
-  assert.equal(oneLine(["hello", "world"].join(String.fromCharCode(10))), "hello world");
+  assert.equal(
+    oneLine(["hello", "world"].join(String.fromCharCode(10))),
+    "hello world",
+  );
 });
 
 test("fits text to a hard width", () => {

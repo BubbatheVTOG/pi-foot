@@ -12,15 +12,30 @@ test("collects assistant usage and ignores other entries", () => {
         type: "message",
         message: {
           role: "assistant",
-          usage: { input: 100, output: 20, cacheRead: 80, cacheWrite: 10, cost: { total: 0.25 } },
+          usage: {
+            input: 100,
+            output: 20,
+            cacheRead: 80,
+            cacheWrite: 10,
+            cost: { total: 0.25 },
+          },
         },
       },
-      { type: "toolResult", message: { role: "assistant", usage: { input: 9 } } },
+      {
+        type: "toolResult",
+        message: { role: "assistant", usage: { input: 9 } },
+      },
       {
         type: "message",
         message: {
           role: "assistant",
-          usage: { input: 50, output: 5, cacheRead: 0, cacheWrite: 2, cost: { total: 0.1 } },
+          usage: {
+            input: 50,
+            output: 5,
+            cacheRead: 0,
+            cacheWrite: 2,
+            cost: { total: 0.1 },
+          },
         },
       },
     ]),

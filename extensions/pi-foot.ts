@@ -21,16 +21,11 @@ export default function (pi: ExtensionAPI): void {
       return {
         invalidate() {},
         render(width: number): string[] {
-          return renderFooter(
-            width,
-            theme,
-            footerData,
-            {
-              modelId,
-              thinkingLevel,
-              entries: ctx.sessionManager.getBranch(),
-            },
-          );
+          return renderFooter(width, theme, footerData, {
+            modelId,
+            thinkingLevel,
+            entries: ctx.sessionManager.getBranch(),
+          });
         },
         dispose() {
           unsubscribeBranch();
@@ -41,12 +36,12 @@ export default function (pi: ExtensionAPI): void {
     });
   });
 
-  pi.on("model_select", event => {
+  pi.on("model_select", (event) => {
     modelId = event.model.id;
     requestRender();
   });
 
-  pi.on("thinking_level_select", event => {
+  pi.on("thinking_level_select", (event) => {
     thinkingLevel = event.level;
     requestRender();
   });

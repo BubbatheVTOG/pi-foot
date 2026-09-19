@@ -67,8 +67,10 @@ function createRegistry(): PiFootRegistry {
 
   return {
     register(section) {
-      if (!section.id.trim()) throw new Error("pi-foot sections need a non-empty id");
-      if (typeof section.render !== "function") throw new TypeError("pi-foot sections need a render function");
+      if (!section.id.trim())
+        throw new Error("pi-foot sections need a non-empty id");
+      if (typeof section.render !== "function")
+        throw new TypeError("pi-foot sections need a render function");
       sections.set(section.id, section);
       notify();
       return () => {
