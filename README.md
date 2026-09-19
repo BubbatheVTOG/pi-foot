@@ -6,12 +6,12 @@ It uses Pi's public `ctx.ui.setFooter()` API and reads native extension statuses
 
 ## What it displays
 
-The default order is model, thinking level, token usage, cache usage, cost, git branch, and native extension statuses. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
+The default order is model, reasoning, cost, input/output, cloud toggle, voice toggle, cache stats, and LSP. Unrecognized native statuses and the git branch are omitted. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
 
 Telemetry labels are intentionally explicit:
 
 ```text
-MODEL claude-sonnet │ THINK medium │ IN 19M OUT 206k │ CACHE R60M W245k │ COST $5.25
+MODEL claude-sonnet │ REASON medium │ COST $5.25 │ IN 19M OUT 206k │ CLOUD │ VOICE OFF │ CACHE R60M W245k │ LSP Inactive
 ```
 
 ## Install
@@ -50,7 +50,7 @@ export PI_FOOT_COLOR_SEPARATOR="#89b4fa"
 
 Supported color values are Pi theme names such as `accent`, `muted`, or `thinkingMedium`; six-digit hex values such as `#7aa2f7`; xterm 256-color indexes such as `39` or `ansi:141`; and RGB values such as `rgb(122, 162, 247)`. Theme values continue to follow the user's active Pi theme.
 
-The section ids are `model`, `thinking`, `tokens`, `cache`, `cost`, `branch`, `status`, `registry`, and `separator`.
+The section ids are `model`, `reasoning`, `tokens`, `cache`, `cache-status`, `cost`, `cloud`, `voice`, `lsp`, `registry`, and `separator`.
 
 Registered sections can set their own color directly:
 

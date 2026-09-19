@@ -94,8 +94,8 @@ function createCandidates(
     {
       text: colorize(
         context.theme,
-        `THINK ${oneLine(runtime.thinkingLevel ?? "off")}`,
-        sectionColor(context, "thinking"),
+        `REASON ${oneLine(runtime.thinkingLevel ?? "off")}`,
+        sectionColor(context, "reasoning") ?? sectionColor(context, "thinking"),
       ),
       priority: 90,
       order: 1,
@@ -103,8 +103,8 @@ function createCandidates(
     {
       text: colorize(
         context.theme,
-        `IN ${formatTokens(telemetry.input)} OUT ${formatTokens(telemetry.output)}`,
-        sectionColor(context, "tokens"),
+        `COST ${formatCost(telemetry.cost)}`,
+        sectionColor(context, "cost"),
       ),
       priority: 80,
       order: 2,
@@ -112,50 +112,28 @@ function createCandidates(
     {
       text: colorize(
         context.theme,
-        `CACHE R${formatTokens(telemetry.cacheRead)} W${formatTokens(telemetry.cacheWrite)}`,
-        sectionColor(context, "cache"),
+        `IN ${formatTokens(telemetry.input)} OUT ${formatTokens(telemetry.output)}`,
+        sectionColor(context, "tokens"),
       ),
       priority: 70,
       order: 3,
     },
-    {
-      text: colorize(
-        context.theme,
-        `COST ${formatCost(telemetry.cost)}`,
-        sectionColor(context, "cost"),
-      ),
-      priority: 60,
-      order: 4,
-    },
   ];
 
-  if (context.branch) {
-    candidates.push({
-      text: colorize(
-        context.theme,
-        `BRANCH ${oneLine(context.branch)}`,
-        sectionColor(context, "branch"),
-      ),
-      priority: 30,
-      order: 5,
-    });
+  let order = 100;
+  for (const kind of ["cloud", "voice", "cache-status"] as const) {
+    order = appendNativeStatuses(context, candidates, kind, order);
   }
 
-  let order = 100;
-  for (const value of context.statuses.values()) {
-    if (!value.trim()) continue;
-    candidates.push({
-      // Native statuses may already contain ANSI colors. pi-foot owns the
-      // final footer palette, so normalize them to the configured status color.
-      text: colorize(
-        context.theme,
-        oneLine(stripAnsi(value)),
-        sectionColor(context, "status"),
-      ),
-      priority: 50,
-      order: order++,
-    });
-  }
+  candidates.push({
+    text: colorize(
+      context.theme,
+      `CACHE R${formatTokens(telemetry.cacheRead)} W${formatTokens(telemetry.cacheWrite)}`,
+      sectionColor(context, "cache"),
+    ),
+    priority: 40,
+    order: order++,
+  });
 
   const registryContext = { ...context, telemetry };
   for (const section of registry.getSections()) {
@@ -163,12 +141,47 @@ function createCandidates(
     if (!text) continue;
     candidates.push({
       text: oneLine(text),
-      priority: section.priority ?? 40,
+      priority: section.priority ?? 35,
       order: order++,
     });
   }
 
+  appendNativeStatuses(context, candidates, "lsp", order);
   return candidates;
+}
+
+type NativeStatusKind = "cloud" | "voice" | "cache-status" | "lsp";
+
+function appendNativeStatuses(
+  context: FooterRenderContext,
+  candidates: Candidate[],
+  kind: NativeStatusKind,
+  order: number,
+): number {
+  for (const [key, value] of context.statuses) {
+    if (!value.trim() || nativeStatusKind(key, value) !== kind) continue;
+    candidates.push({
+      // Native statuses may already contain ANSI colors. pi-foot owns the
+      // final footer palette, so normalize them to the configured section color.
+      text: colorize(
+        context.theme,
+        oneLine(stripAnsi(value)),
+        sectionColor(context, kind),
+      ),
+      priority: kind === "lsp" ? 10 : 50,
+      order: order++,
+    });
+  }
+  return order;
+}
+
+function nativeStatusKind(key: string, value: string): NativeStatusKind | undefined {
+  const source = `${key} ${value}`.toLowerCase();
+  if (source.includes("lsp")) return "lsp";
+  if (source.includes("cloud")) return "cloud";
+  if (source.includes("voice")) return "voice";
+  if (source.includes("cache")) return "cache-status";
+  return undefined;
 }
 
 function renderRegisteredSection(
