@@ -122,33 +122,41 @@ function createCandidates(
 
   let order = 100;
   for (const kind of ["cloud", "voice"] as const) {
-    order = appendNativeStatuses(context, candidates, kind, order);
+    if (config.order.includes(kind)) {
+      order = appendNativeStatuses(context, candidates, kind, order);
+    }
   }
 
-  candidates.push({
-    section: "cache",
-    text: colorize(
-      context.theme,
-      `CACHE R${formatTokens(telemetry.cacheRead)} W${formatTokens(telemetry.cacheWrite)}`,
-      sectionColor(context, "cache"),
-    ),
-    priority: 40,
-    order: order++,
-  });
-
-  const registryContext = { ...context, telemetry };
-  for (const section of registry.getSections()) {
-    const text = renderRegisteredSection(section, registryContext);
-    if (!text) continue;
+  if (config.order.includes("cache")) {
     candidates.push({
-      section: "registry",
-      text: oneLine(text),
-      priority: section.priority ?? 35,
+      section: "cache",
+      text: colorize(
+        context.theme,
+        `CACHE R${formatTokens(telemetry.cacheRead)} W${formatTokens(telemetry.cacheWrite)}`,
+        sectionColor(context, "cache"),
+      ),
+      priority: 40,
       order: order++,
     });
   }
 
-  appendNativeStatuses(context, candidates, "lsp", order);
+  if (config.order.includes("registry")) {
+    const registryContext = { ...context, telemetry };
+    for (const section of registry.getSections()) {
+      const text = renderRegisteredSection(section, registryContext);
+      if (!text) continue;
+      candidates.push({
+        section: "registry",
+        text: oneLine(text),
+        priority: section.priority ?? 35,
+        order: order++,
+      });
+    }
+  }
+
+  if (config.order.includes("lsp")) {
+    appendNativeStatuses(context, candidates, "lsp", order);
+  }
   return candidates
     .filter((candidate) => config.sections.get(candidate.section)?.enabled !== false)
     .map((candidate) => ({

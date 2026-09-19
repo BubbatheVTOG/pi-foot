@@ -6,12 +6,12 @@ It uses Pi's public `ctx.ui.setFooter()` API and reads native extension statuses
 
 ## What it displays
 
-The default order is model, reasoning, cost, input/output, cloud toggle, voice toggle, cache stats, and LSP. Unrecognized native statuses and the git branch are omitted. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
+The built-in default order is model, reasoning, cost, input/output, and cache telemetry. Optional extension statuses such as cloud, voice, and LSP are omitted unless the settings JSON includes them. Unrecognized native statuses and the git branch are omitted. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
 
 Telemetry labels are intentionally explicit:
 
 ```text
-MODEL claude-sonnet │ REASON medium │ COST $5.25 │ IN 19M OUT 206k │ CLOUD │ VOICE OFF │ CACHE R60M W245k │ LSP Inactive
+MODEL claude-sonnet │ REASON medium │ COST $5.25 │ IN 19M OUT 206k │ CACHE R60M W245k
 ```
 
 ## Install
@@ -34,25 +34,31 @@ Installation and activation are separate. Reload Pi after installing or changing
 
 `pi-foot` reads the `piFoot` object from Pi's normal settings file. Global settings live at `~/.pi/agent/settings.json`; project settings live at `.pi/settings.json` and override the global values. Missing optional sections are simply omitted, so the defaults work whether cloud, voice, cache-monitor, or LSP extensions are installed.
 
-The repository's default configuration is:
+The built-in defaults are equivalent to:
 
 ```json
 {
   "piFoot": {
-    "order": ["model", "reasoning", "cost", "tokens", "cloud", "voice", "cache", "registry", "lsp"],
+    "order": ["model", "reasoning", "cost", "tokens", "cache"],
     "separator": " │ ",
     "colors": {
       "model": "muted",
       "reasoning": "muted",
       "cost": "muted",
       "tokens": "muted",
-      "cloud": "muted",
-      "voice": "muted",
       "cache": "muted",
-      "registry": "muted",
-      "lsp": "muted",
       "separator": "accent"
     }
+  }
+}
+```
+
+To add the user's cloud, voice, and LSP statuses, the settings can override that order:
+
+```json
+{
+  "piFoot": {
+    "order": ["model", "reasoning", "cost", "tokens", "cloud", "voice", "cache", "lsp"]
   }
 }
 ```
@@ -81,7 +87,7 @@ Built-in sections use Pi's active theme by default. The model and telemetry text
 Use one JSON variable for several sections:
 
 ```bash
-export PI_FOOT_COLORS='{"model":"accent","thinking":"#7aa2f7","tokens":39,"cache":"ansi:141","cost":"theme:muted","status":"#a6e3a1"}'
+export PI_FOOT_COLORS='{"model":"accent","reasoning":"#7aa2f7","tokens":39,"cache":"ansi:141","cost":"theme:muted","separator":"#a6e3a1"}'
 ```
 
 Or use a single-section shortcut:

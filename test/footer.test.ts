@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { resolvePiFootConfig } from "../src/config.ts";
 import { renderFooter } from "../src/footer.ts";
 import { getPiFootRegistry } from "../src/registry.ts";
 
@@ -10,6 +11,9 @@ test("renders native statuses and registered sections", () => {
     id: "test-footer-section",
     priority: 95,
     render: ({ theme }) => theme.fg("accent", "EXTRA yes"),
+  });
+  const config = resolvePiFootConfig({
+    order: ["model", "reasoning", "cost", "tokens", "cloud", "voice", "cache", "registry", "lsp"],
   });
 
   const line = renderFooter(
@@ -46,6 +50,7 @@ test("renders native statuses and registered sections", () => {
       ],
     },
     registry,
+    config,
   )[0];
 
   assert.match(line, /MODEL test-model/);

@@ -7,17 +7,14 @@ import {
   readColorOverrides,
   type ColorSpec,
 } from "./colors.ts";
+import { oneLine } from "./format.ts";
 
 export const DEFAULT_ORDER = [
   "model",
   "reasoning",
   "cost",
   "tokens",
-  "cloud",
-  "voice",
   "cache",
-  "registry",
-  "lsp",
 ] as const;
 
 export interface SectionConfig {
@@ -80,11 +77,13 @@ export function resolvePiFootConfig(
   return {
     order,
     colors,
-    separator: typeof project.separator === "string"
-      ? project.separator
-      : typeof global.separator === "string"
-        ? global.separator
-        : " │ ",
+    separator: oneLine(
+      typeof project.separator === "string"
+        ? project.separator
+        : typeof global.separator === "string"
+          ? global.separator
+          : " │ ",
+    ),
     sections,
   };
 }
@@ -93,7 +92,31 @@ function readPiFootSettings(path: string): PiFootSettings {
   try {
     const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
     if (!isRecord(parsed) || !isRecord(parsed.piFoot)) return {};
-    return parsed.piFoot as PiFootSettings;
+
+    const raw = parsed.piFoot;
+    const settings: PiFootSettings = {};
+    if (Array.isArray(raw.order)) {
+      settings.order = raw.order.filter((value): value is string => typeof value === "string");
+    }
+    if (typeof raw.separator === "string") settings.separator = raw.separator;
+
+    if (isRecord(raw.colors)) {
+      const colors: Record<string, ColorSpec> = {};
+      for (const [section, value] of Object.entries(raw.colors)) {
+        const color = parseColorSpec(value);
+        if (color !== undefined) colors[section] = color;
+      }
+      settings.colors = colors;
+    }
+
+    if (isRecord(raw.sections)) {
+      const sections: Record<string, SectionConfig> = {};
+      for (const [section, value] of Object.entries(raw.sections)) {
+        if (isSectionConfig(value)) sections[section] = value;
+      }
+      settings.sections = sections;
+    }
+    return settings;
   } catch {
     return {};
   }
@@ -110,8 +133,11 @@ function objectColors(value: Record<string, ColorSpec> | undefined): Map<string,
 }
 
 function normalizeOrder(order: string[] | undefined): string[] {
-  const values = order ?? [...DEFAULT_ORDER];
-  const unique = values.filter((value, index) => value.trim() && values.indexOf(value) === index);
+  const values = Array.isArray(order) ? order : [...DEFAULT_ORDER];
+  const unique = values.filter(
+    (value, index): value is string =>
+      typeof value === "string" && value.trim().length > 0 && values.indexOf(value) === index,
+  );
   for (const section of DEFAULT_ORDER) {
     if (!unique.includes(section)) unique.push(section);
   }

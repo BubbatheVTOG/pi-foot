@@ -19,7 +19,7 @@ export default function (pi: ExtensionAPI): void {
 
     if (ctx.mode !== "tui") return;
 
-    ctx.ui.setFooter((tui, theme, footerData) => {
+    ctx.ui.setFooter((tui, _theme, footerData) => {
       requestRender = () => tui.requestRender();
       const unsubscribeBranch = footerData.onBranchChange(requestRender);
       const unsubscribeRegistry = getPiFootRegistry().onChange(requestRender);
@@ -29,7 +29,7 @@ export default function (pi: ExtensionAPI): void {
         render(width: number): string[] {
           return renderFooter(
             width,
-            theme,
+            ctx.ui.theme,
             footerData,
             {
               modelId,
