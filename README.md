@@ -4,6 +4,8 @@
 
 It uses Pi's public `ctx.ui.setFooter()` API and reads native extension statuses through the public `footerData` supplied to custom footer factories. Existing extensions that call `ctx.ui.setStatus()` therefore work without adapters or changes.
 
+![pi-foot terminal footer](docs/pi-foot.png)
+
 ## What it displays
 
 The built-in default order is model, reasoning, cost, input/output, and cache telemetry. Optional extension statuses such as cloud, voice, and LSP are omitted unless the settings JSON includes them. Unrecognized native statuses and the git branch are omitted. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
