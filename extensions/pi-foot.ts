@@ -10,10 +10,20 @@ export default function (pi: ExtensionAPI): void {
   let modelId: string | undefined;
   let thinkingLevel: string | undefined;
   let requestRender = (): void => {};
-  let footerConfig: ResolvedPiFootConfig = loadPiFootConfig(process.cwd());
+  let footerConfig: ResolvedPiFootConfig = loadPiFootConfig(
+    process.cwd(),
+    CONFIG_DIR_NAME,
+    process.env,
+    false,
+  );
 
   pi.on("session_start", (_event, ctx) => {
-    footerConfig = loadPiFootConfig(ctx.cwd, CONFIG_DIR_NAME);
+    footerConfig = loadPiFootConfig(
+      ctx.cwd,
+      CONFIG_DIR_NAME,
+      process.env,
+      ctx.isProjectTrusted(),
+    );
     modelId = ctx.model?.id;
     thinkingLevel = ctx.thinkingLevel;
 

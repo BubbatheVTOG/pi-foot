@@ -45,12 +45,14 @@ export function loadPiFootConfig(
   cwd: string,
   projectConfigDirName = ".pi",
   env: Record<string, string | undefined> = process.env,
+  projectTrusted = true,
 ): ResolvedPiFootConfig {
-  const globalDir = env.PI_CODING_AGENT_DIR || join(homedir(), ".pi", "agent");
+  const globalDir =
+    env.PI_CODING_AGENT_DIR || join(homedir(), projectConfigDirName, "agent");
   const global = readPiFootSettings(join(globalDir, "settings.json"));
-  const project = readPiFootSettings(
-    join(cwd, projectConfigDirName, "settings.json"),
-  );
+  const project = projectTrusted
+    ? readPiFootSettings(join(cwd, projectConfigDirName, "settings.json"))
+    : {};
   return resolvePiFootConfig(global, project, readColorOverrides(env));
 }
 

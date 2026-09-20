@@ -69,7 +69,14 @@ function createRegistry(): PiFootRegistry {
   const listeners = new Set<() => void>();
 
   const notify = (): void => {
-    for (const listener of listeners) listener();
+    for (const listener of listeners) {
+      try {
+        listener();
+      } catch {
+        // Registry consumers are isolated: one broken footer integration must
+        // not prevent later listeners from observing an otherwise valid update.
+      }
+    }
   };
 
   return {
@@ -120,9 +127,23 @@ function createRegistry(): PiFootRegistry {
  */
 export function getPiFootRegistry(): PiFootRegistry {
   const registry = host()[PI_FOOT_REGISTRY];
-  if (registry) return registry as PiFootRegistry;
+  if (isPiFootRegistry(registry)) return registry;
 
   const created = createRegistry();
   host()[PI_FOOT_REGISTRY] = created;
   return created;
+}
+
+function isPiFootRegistry(value: unknown): value is PiFootRegistry {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate = value as Partial<PiFootRegistry>;
+  return (
+    typeof candidate.register === "function" &&
+    typeof candidate.unregister === "function" &&
+    typeof candidate.getSections === "function" &&
+    typeof candidate.refresh === "function" &&
+    typeof candidate.setColor === "function" &&
+    typeof candidate.getColors === "function" &&
+    typeof candidate.onChange === "function"
+  );
 }

@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import { defaultPiFootConfig, resolvePiFootConfig } from "../src/config.ts";
+import {
+  defaultPiFootConfig,
+  loadPiFootConfig,
+  resolvePiFootConfig,
+} from "../src/config.ts";
 
 test("resolves user order and colors over defaults and environment", () => {
   const config = resolvePiFootConfig(
@@ -35,4 +42,34 @@ test("defaults to Pi's built-in telemetry only", () => {
     "tokens",
     "cache",
   ]);
+});
+
+test("untrusted projects cannot override global footer settings", () => {
+  const root = mkdtempSync(join(tmpdir(), "pi-foot-config-"));
+  const globalDir = join(root, "global");
+  const projectDir = join(root, "project", ".pi");
+  mkdirSync(globalDir, { recursive: true });
+  mkdirSync(projectDir, { recursive: true });
+  writeFileSync(
+    join(globalDir, "settings.json"),
+    JSON.stringify({ piFoot: { order: ["model", "cost"] } }),
+  );
+  writeFileSync(
+    join(projectDir, "settings.json"),
+    JSON.stringify({ piFoot: { order: ["model", "lsp"] } }),
+  );
+
+  try {
+    const env = { PI_CODING_AGENT_DIR: globalDir };
+    assert.deepEqual(
+      loadPiFootConfig(join(root, "project"), ".pi", env, false).order,
+      ["model", "cost"],
+    );
+    assert.deepEqual(
+      loadPiFootConfig(join(root, "project"), ".pi", env, true).order,
+      ["model", "lsp"],
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
