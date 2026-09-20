@@ -12,6 +12,7 @@ import { oneLine } from "./format.ts";
 export const DEFAULT_ORDER = [
   "model",
   "reasoning",
+  "context",
   "cost",
   "tokens",
   "cache",

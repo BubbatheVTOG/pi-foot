@@ -30,6 +30,7 @@ test("defaults to Pi's built-in telemetry only", () => {
   assert.deepEqual(defaultPiFootConfig().order, [
     "model",
     "reasoning",
+    "context",
     "cost",
     "tokens",
     "cache",

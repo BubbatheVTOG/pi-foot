@@ -16,6 +16,7 @@ test("renders native statuses and registered sections", () => {
     order: [
       "model",
       "reasoning",
+      "context",
       "cost",
       "tokens",
       "cloud",
@@ -77,6 +78,41 @@ test("renders native statuses and registered sections", () => {
   );
   assert.equal(line.indexOf("CLOUD") < line.indexOf("VOICE OFF"), true);
   remove();
+});
+
+test("colors context usage warnings at 80% and 90%", () => {
+  const colors: string[] = [];
+  const render = (percent: number) =>
+    renderFooter(
+      240,
+      {
+        fg: (color, text) => {
+          colors.push(color);
+          return text;
+        },
+      },
+      {
+        getExtensionStatuses: () => new Map(),
+        getGitBranch: () => null,
+        getAvailableProviderCount: () => 1,
+        onBranchChange: () => () => {},
+      },
+      {
+        modelId: "test-model",
+        thinkingLevel: "medium",
+        entries: [],
+        contextUsage: { tokens: 80_000, contextWindow: 100_000, percent },
+      },
+    )[0];
+
+  assert.match(render(79.4), /KV 80k 79%/);
+  assert.equal(colors.includes("warning"), false);
+  colors.length = 0;
+  render(80);
+  assert.equal(colors.includes("warning"), true);
+  colors.length = 0;
+  render(90);
+  assert.equal(colors.includes("error"), true);
 });
 
 test("omits optional statuses from built-in defaults", () => {

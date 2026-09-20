@@ -17,6 +17,7 @@ export {
 export {
   getPiFootRegistry,
   PI_FOOT_REGISTRY,
+  type FooterContextUsage,
   type FooterRenderContext,
   type FooterSection,
   type FooterTelemetry,

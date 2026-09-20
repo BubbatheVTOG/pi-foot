@@ -35,6 +35,7 @@ export default function (pi: ExtensionAPI): void {
               modelId,
               thinkingLevel,
               entries: ctx.sessionManager.getBranch(),
+              contextUsage: ctx.getContextUsage(),
             },
             getPiFootRegistry(),
             footerConfig,

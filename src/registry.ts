@@ -2,6 +2,12 @@ import { parseColorSpec, type ColorSpec } from "./colors.ts";
 
 export const PI_FOOT_REGISTRY = Symbol.for("pi-foot.v1");
 
+export interface FooterContextUsage {
+  tokens: number | null;
+  contextWindow: number;
+  percent: number | null;
+}
+
 export interface FooterRenderContext {
   width: number;
   separator: string;
@@ -9,6 +15,7 @@ export interface FooterRenderContext {
   statuses: ReadonlyMap<string, string>;
   branch: string | null;
   telemetry: FooterTelemetry;
+  contextUsage: FooterContextUsage | undefined;
   colors: ReadonlyMap<string, ColorSpec>;
 }
 

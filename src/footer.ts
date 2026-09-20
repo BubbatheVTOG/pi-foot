@@ -1,4 +1,7 @@
-import type { ReadonlyFooterDataProvider } from "@earendil-works/pi-coding-agent";
+import type {
+  ContextUsage,
+  ReadonlyFooterDataProvider,
+} from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import { colorize } from "./colors.ts";
 import {
@@ -22,6 +25,7 @@ interface FooterRuntime {
   modelId: string | undefined;
   thinkingLevel: string | undefined;
   entries: readonly SessionEntryLike[];
+  contextUsage?: ContextUsage;
 }
 
 interface Candidate {
@@ -55,6 +59,7 @@ export function renderFooter(
     statuses,
     branch,
     telemetry,
+    contextUsage: runtime.contextUsage,
     colors,
   };
 
@@ -97,6 +102,16 @@ function createCandidates(
       order: 1,
     },
     {
+      section: "context",
+      text: colorize(
+        context.theme,
+        formatContextUsage(context.contextUsage),
+        contextUsageColor(context),
+      ),
+      priority: 85,
+      order: 2,
+    },
+    {
       section: "cost",
       text: colorize(
         context.theme,
@@ -104,7 +119,7 @@ function createCandidates(
         sectionColor(context, "cost"),
       ),
       priority: 80,
-      order: 2,
+      order: 3,
     },
     {
       section: "tokens",
@@ -239,6 +254,29 @@ function sectionColor(
   section: string,
 ): string | number | undefined {
   return context.colors.get(section);
+}
+
+function formatContextUsage(
+  usage: FooterRenderContext["contextUsage"],
+): string {
+  if (!usage || usage.tokens === null || usage.percent === null) return "KV ?";
+  return `KV ${formatTokens(usage.tokens)} ${displayedContextPercent(usage.percent)}%`;
+}
+
+function contextUsageColor(
+  context: FooterRenderContext,
+): string | number | undefined {
+  const usage = context.contextUsage;
+  if (usage?.percent !== null && usage?.percent !== undefined) {
+    const percent = displayedContextPercent(usage.percent);
+    if (percent >= 90) return "error";
+    if (percent >= 80) return "warning";
+  }
+  return sectionColor(context, "context");
+}
+
+function displayedContextPercent(percent: number): number {
+  return Math.round(percent);
 }
 
 function selectCandidates(

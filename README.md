@@ -8,12 +8,12 @@ It uses Pi's public `ctx.ui.setFooter()` API and reads native extension statuses
 
 ## What it displays
 
-The built-in default order is model, reasoning, cost, input/output, and cache telemetry. Optional extension statuses such as cloud, voice, and LSP are omitted unless the settings JSON includes them. Unrecognized native statuses and the git branch are omitted. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
+The built-in default order is model, reasoning, KV-cache context usage, cost, input/output, and cache telemetry. Context usage is shown as `KV <current> <percent>%`; it turns yellow at 80% and red at 90%. Optional extension statuses such as cloud, voice, and LSP are omitted unless the settings JSON includes them. Unrecognized native statuses and the git branch are omitted. Sections are separated with a readable `│` separator and low-priority sections disappear when the terminal is narrow.
 
 Telemetry labels are intentionally explicit:
 
 ```text
-MODEL claude-sonnet │ REASON medium │ COST $5.25 │ IN 19M OUT 206k │ CACHE R60M W245k
+MODEL claude-sonnet │ REASON medium │ KV 42k 33% │ COST $5.25 │ IN 19M OUT 206k │ CACHE R60M W245k
 ```
 
 ## Install
@@ -41,11 +41,12 @@ The built-in defaults are equivalent to:
 ```json
 {
   "piFoot": {
-    "order": ["model", "reasoning", "cost", "tokens", "cache"],
+    "order": ["model", "reasoning", "context", "cost", "tokens", "cache"],
     "separator": " │ ",
     "colors": {
       "model": "muted",
       "reasoning": "muted",
+      "context": "muted",
       "cost": "muted",
       "tokens": "muted",
       "cache": "muted",
@@ -102,7 +103,7 @@ export PI_FOOT_COLOR_SEPARATOR="#89b4fa"
 
 Supported color values are Pi theme names such as `accent`, `muted`, or `thinkingMedium`; six-digit hex values such as `#7aa2f7`; xterm 256-color indexes such as `39` or `ansi:141`; and RGB values such as `rgb(122, 162, 247)`. Theme values continue to follow the user's active Pi theme.
 
-The section ids are `model`, `reasoning`, `tokens`, `cache`, `cost`, `cloud`, `voice`, `status`, `lsp`, `registry`, and `separator`. Add `status` to the order to include other native Pi status entries.
+The section ids are `model`, `reasoning`, `context`, `tokens`, `cache`, `cost`, `cloud`, `voice`, `status`, `lsp`, `registry`, and `separator`. Add `status` to the order to include other native Pi status entries.
 
 Registered sections can set their own color directly:
 
